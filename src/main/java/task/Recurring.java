@@ -50,6 +50,7 @@ public class Recurring extends Task {
         }
         this.by = by;
         this.isDone = i.equals("1");
+        this.isSnooze = snooze.equals("1");
         this.frequency = frequency;
     }
 
@@ -65,7 +66,8 @@ public class Recurring extends Task {
     @Override
     public String toWriteFile() {
         int boolToInt = isDone ? 1 : 0;
-        return "R | "  + boolToInt + " | " + this.description + " | " + this.by + " | " + frequency + "\n";
+        int snoozebooltoInt = this.isSnooze ? 1 : 0;
+        return "R | "  + boolToInt + " | " + this.description + " | " + this.by + " | " + snoozebooltoInt  + " | " + frequency + "\n";
     }
 
     @Override

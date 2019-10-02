@@ -13,6 +13,7 @@ import command.ListCommand;
 import command.RecurringCommand;
 import command.SnoozeCommand;
 import command.TodoCommand;
+import command.UnSnoozeCommand;
 import command.UpcomingCommand;
 import command.ViewScheduleCommand;
 import exception.DukeException;
@@ -54,7 +55,9 @@ public class Parser {
         case "viewschedule":
             return new ViewScheduleCommand(splitStr);
         case "snooze":
-            return new SnoozeCommand(input, splitStr);
+            return new SnoozeCommand(splitStr);
+        case "unsnooze":
+            return new UnSnoozeCommand(splitStr);
         case "duration" :
             return new FixedDurationCommand(input, splitStr);
         case "findfree" :

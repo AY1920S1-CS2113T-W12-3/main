@@ -12,6 +12,7 @@ import java.util.Date;
  * Lists the task name and stores the deadline in Date format.
  */
 public class Deadline extends Task {
+    protected String by;
 
     /**
      * task.Deadline Constructor.
@@ -26,18 +27,32 @@ public class Deadline extends Task {
         } catch (ParseException e) {
             System.out.println("Please enter date time format correctly: dd/mm/yyyy hhmm");
         }
+        this.by = by;
     }
 
     /**
      * task.Deadline Constructor from text file.
      * @param i isDone status
      * @param description of deadline
-     * @param date deadline date and time
+     * @param by deadline date and time
      */
-    public Deadline(String i, String description, String date) {
+    public Deadline(String i, String description, String by, String snooze) {
         super(description);
-        this.dateTime = new Date(Long.parseLong(date));
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HHmm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HHmm");
+        try {
+            this.dateTime = sdf.parse(by);
+        } catch (ParseException e) {
+            System.out.println("Please enter date time format correctly: dd/mm/yyyy hhmm");
+        }
+        this.by = by;
         this.isDone = i.equals("1");
+        this.isSnooze = snooze.equals("1");
+    }
+
+    @Override
+    public boolean containsDate(String s) {
+        return this.by.contains(s);
     }
 
     @Override
@@ -52,10 +67,7 @@ public class Deadline extends Task {
     @Override
     public String toWriteFile() {
         int boolToInt = isDone ? 1 : 0;
-        return "D | " + boolToInt + " | " + this.description + " | " + this.dateTime.getTime() + " | " + "\n";
-    }
-
-    public void setDateTime(Date newDate) {
-        this.dateTime = newDate;
+        int snoozebooltoInt = this.isSnooze ? 1 : 0;
+        return "D | " + boolToInt + " | " + this.description + " | " + this.by + " | " + snoozebooltoInt + "\n";
     }
 }
