@@ -19,9 +19,11 @@ import java.time.format.DateTimeFormatter;
 
 public class EditBookingCommand extends Command {
 
-    private int index;
+    private String name;
     private String[] splitC;
-    private String textToEdit;
+    private String roomcode;
+    private LocalDateTime dateTimeStart;
+    private String datetimeStartString;
 
     //@@author Alex-Teo
     /**
@@ -32,28 +34,33 @@ public class EditBookingCommand extends Command {
      * @throws DukeException when format not allowed
      * @throws IOException when entry is incorrect
      */
-    public EditBookingCommand(String input, String[] splitStr) throws DukeException {
-        if (splitStr.length <= 2) {
-            throw new DukeException("☹ OOPS!!! Please enter the index of the item you want to edit as well as the "
-                    + "updated description of your booking!");
+    public EditBookingCommand(String input, String[] splitStr) throws DukeException, IOException {
+        if (splitStr.length <= 1) {
+            throw new DukeException("☹ OOPS!!! Please create the booking you want to edit with the following format: "
+                    + "name, roomcode, start date and time, description");
         }
-        try {
-            index = Integer.parseInt(splitStr[1]);
-            index -= 1;
-        } catch (NumberFormatException e) {
-            throw new DukeException(Constants.UNHAPPY + " OOPS!!! Please enter the index in integer format");
-        }
-        splitC = input.split(" ", 3);
-        textToEdit = splitC[2];
+        splitC = input.split(" ", 6);
+        name = splitC[1];
+        roomcode = splitC[2];
     }
 
     @Override
     public void execute(UserList userList, Inventory inventory, RoomList roomList, BookingList bookingList, Ui ui,
                         Storage userStorage, Storage inventoryStorage, Storage bookingstorage, Storage roomstorage)
             throws DukeException, IOException, ParseException {
-        bookingList.get(index).setDescription(textToEdit);
-        ui.addToOutput("The description of this request has been changed!");
-        ui.addToOutput(bookingList.get(index).toString());
-        bookingstorage.saveToFile(bookingList);
+        if (!roomList.checkRoom(roomcode)) {
+            throw new DukeException(Constants.UNHAPPY + "OOPS!!! This room doesn't exist!");
+        }
+        datetimeStartString = splitC[3] + " " + splitC[4];
+        DateTimeFormatter formatterStart = DateTimeFormatter.ofPattern("dd/MM/yyyy HHmm");
+        this.dateTimeStart = LocalDateTime.parse(datetimeStartString, formatterStart);
+        for (Booking i: bookingList) {
+            if ((i.getVenue() == roomcode) && (i.getDateTimeStart() == dateTimeStart) && (i.getName() == name)) {
+                i.setDescription(splitC[4]);
+                ui.addToOutput("The description of this request has been changed!");
+                bookingstorage.saveToFile(bookingList);
+                break;
+            }
+        }
     }
 }
